@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NetMap AI – Intelligent Network Topology Discovery and Device Role Mapping System</title>
+    <!-- Local Bootstrap 5 CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- Custom Theme CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2245%22 fill=%22%2300b4d8%22/><text y=%22.9em%22 font-size=%2280%22 x=%2215%22 fill=%22white%22>⚡</text></svg>">
+</head>
+<body>
+
+    <!-- ====================================================================
+         1. LOGIN VIEW
+         ==================================================================== -->
+    <div id="loginView" class="login-container">
+        <div class="login-bg-grid"></div>
+
+        <div class="login-card">
+            <div class="login-header">
+                <div class="brand-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+                        <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+                        <line x1="6" y1="6" x2="6.01" y2="6"></line>
+                        <line x1="6" y1="18" x2="6.01" y2="18"></line>
+                    </svg>
+                </div>
+                <h1 class="brand-title">NetMap <span>AI</span></h1>
+                <p class="brand-subtitle">Intelligent Network Topology Discovery &amp; Device Role Mapping</p>
+            </div>
+
+            <div id="loginError" class="alert alert-danger py-2 px-3 mb-3" style="display:none; font-size: 13px; background: rgba(239, 68, 68, 0.2); border-color: #ef4444; color: #fca5a5;"></div>
+
+            <form id="loginForm" class="login-form">
+                <div class="mb-3">
+                    <label for="loginUsername" class="form-label">Username</label>
+                    <input type="text" class="form-control custom-input" id="loginUsername" placeholder="admin" value="admin" required autocomplete="username">
+                </div>
+                <div class="mb-3">
+                    <label for="loginPassword" class="form-label">Password</label>
+                    <input type="password" class="form-control custom-input" id="loginPassword" placeholder="admin123" value="admin123" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn btn-login">
+                    Authenticate &amp; Access Dashboard
+                </button>
+            </form>
+
+            <div class="credentials-hint">
+                <strong>Demo Credentials:</strong><br>
+                Username: <code>admin</code> &bull; Password: <code>admin123</code>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====================================================================
+         2. MAIN DASHBOARD VIEW
+         ==================================================================== -->
+    <div id="dashboardView">
+
+        <!-- Top Header Navigation -->
+        <header class="top-navbar">
+            <div class="nav-brand">
+                <div class="brand-icon" style="width: 36px; height: 36px; font-size: 16px; margin-bottom: 0;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="2" y1="12" x2="22" y2="12"></line>
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <div class="nav-brand-title">NetMap <span>AI</span></div>
+                    <div class="nav-brand-subtitle">Intelligent Network Management &amp; Topology Discovery</div>
+                </div>
+            </div>
+
+            <!-- Mode Switcher -->
+            <div class="mode-switcher">
+                <button type="button" id="btnAutoMode" class="mode-btn active">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                    </svg>
+                    Automatic Generation
+                </button>
+                <button type="button" id="btnManualMode" class="mode-btn">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                        <polyline points="2 17 12 22 22 17"></polyline>
+                        <polyline points="2 12 12 17 22 12"></polyline>
+                    </svg>
+                    Manual Network Design
+                </button>
+            </div>
+
+            <!-- Logged-in User Profile & Logout -->
+            <div class="user-profile">
+                <div class="user-badge">
+                    <div class="status-dot"></div>
+                    <span id="currentUsername">admin</span> (Online)
+                </div>
+                <button type="button" id="logoutBtn" class="btn-logout">
+                    Logout
+                </button>
+            </div>
+        </header>
+
+        <!-- Network Statistics Summary Bar -->
+        <section class="stats-bar">
+            <div class="stat-card stat-total">
+                <div class="stat-title">
+                    <span>Total Devices</span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                </div>
+                <div class="stat-value" id="statTotalDevices">0</div>
+            </div>
+
+            <div class="stat-card stat-conn">
+                <div class="stat-title">
+                    <span>Total Links</span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                </div>
+                <div class="stat-value" id="statTotalConnections">0</div>
+            </div>
+
+            <div class="stat-card stat-router">
+                <div class="stat-title">
+                    <span>Routers</span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
+                </div>
+                <div class="stat-value" id="statRouters">0</div>
+            </div>
+
+            <div class="stat-card stat-switch">
+                <div class="stat-title">
+                    <span>Switches</span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="6" cy="12" r="1"/><circle cx="10" cy="12" r="1"/><circle cx="14" cy="12" r="1"/><circle cx="18" cy="12" r="1"/></svg>
+                </div>
+                <div class="stat-value" id="statSwitches">0</div>
+            </div>
+
+            <div class="stat-card stat-server">
+                <div class="stat-title">
+                    <span>Servers</span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+                </div>
+                <div class="stat-value" id="statServers">0</div>
+            </div>
+
+            <div class="stat-card stat-client">
+                <div class="stat-title">
+                    <span>PCs / Clients</span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                </div>
+                <div class="stat-value" id="statClients">0</div>
+            </div>
+
+            <div class="stat-card stat-ap">
+                <div class="stat-title">
+                    <span>Access Points</span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+                </div>
+                <div class="stat-value" id="statAPs">0</div>
+            </div>
+        </section>
+
+        <!-- Dynamic Control Toolbar -->
+        <section class="toolbar-container">
+            <!-- Auto Mode Controls -->
+            <div id="autoControls" class="toolbar-group">
+                <label for="deviceCountSelect" style="font-size: 13px; font-weight: 600; color: var(--text-secondary);">Device Count:</label>
+                <select id="deviceCountSelect" class="form-select custom-select-sm" style="width: 100px;">
+                    <option value="5">5</option>
+                    <option value="10" selected>10</option>
+                    <option value="15">15</option>
+                    <option value="20">20</option>
+                    <option value="25">25</option>
+                    <option value="30">30</option>
+                    <option value="35">35</option>
+                    <option value="40">40</option>
+                    <option value="45">45</option>
+                    <option value="50">50</option>
+                </select>
+                <button type="button" id="btnGenerate" class="btn-cyan">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                    Generate Network
+                </button>
+                <button type="button" id="btnReset" class="btn-outline-nms">
+                    Reset
+                </button>
+            </div>
+
+            <!-- Common Toolbar Controls: Filters & Search -->
+            <div class="toolbar-group">
+                <span style="font-size: 12px; font-weight: 600; color: var(--text-muted);">Filter:</span>
+                <div class="filter-pills">
+                    <button class="filter-pill active" data-filter="ALL">All</button>
+                    <button class="filter-pill" data-filter="ROUTER">Routers</button>
+                    <button class="filter-pill" data-filter="SWITCH">Switches</button>
+                    <button class="filter-pill" data-filter="SERVER">Servers</button>
+                    <button class="filter-pill" data-filter="PC">PCs</button>
+                    <button class="filter-pill" data-filter="ACCESS_POINT">APs</button>
+                </div>
+
+                <!-- Search Input -->
+                <div class="search-box-wrap">
+                    <span class="search-icon">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    </span>
+                    <input type="text" id="deviceSearchInput" placeholder="Search device (e.g. Router-01)...">
+                </div>
+
+                <button type="button" id="btnFitScreen" class="btn-outline-nms" title="Fit Entire Topology to Screen">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+                    Fit
+                </button>
+                <button type="button" id="btnResetLayout" class="btn-outline-nms" title="Re-arrange Clean Layout">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+                    Layout
+                </button>
+            </div>
+        </section>
+
+        <!-- Manual Design Palette & Action Bar (Visible in Manual Mode) -->
+        <section id="manualPaletteBar" class="manual-palette-bar">
+            <div class="palette-items">
+                <span class="palette-label">Device Palette:</span>
+                <button type="button" class="palette-btn" data-type="ROUTER">
+                    <span>🔄</span> Router
+                </button>
+                <button type="button" class="palette-btn" data-type="SWITCH">
+                    <span>🔀</span> Switch
+                </button>
+                <button type="button" class="palette-btn" data-type="SERVER">
+                    <span>🗄️</span> Server
+                </button>
+                <button type="button" class="palette-btn" data-type="PC">
+                    <span>💻</span> PC / Client
+                </button>
+                <button type="button" class="palette-btn" data-type="ACCESS_POINT">
+                    <span>📡</span> Access Point
+                </button>
+                <button type="button" class="palette-btn" data-type="INTERNET">
+                    <span>☁️</span> Internet
+                </button>
+            </div>
+
+            <div class="manual-actions">
+                <button type="button" id="btnCableTool" class="btn-outline-nms btn-cable-tool" title="Connect two devices by clicking them sequentially">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                    Connect Devices
+                </button>
+                <button type="button" id="btnDeleteSelected" class="btn-outline-nms" style="color: #f87171;" title="Delete selected device or link">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    Delete Selected
+                </button>
+                <button type="button" id="btnClearDesign" class="btn-outline-nms" title="Clear entire canvas">
+                    Clear Design
+                </button>
+                <button type="button" id="btnSaveDesign" class="btn-outline-nms" title="Save current manual design in memory">
+                    Save Design
+                </button>
+                <button type="button" id="btnAnalyzeManual" class="btn-cyan" title="Validate connectivity and run AI role mapping">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    Analyze Network
+                </button>
+            </div>
+        </section>
+
+        <!-- Main Workspace: Large Topology Canvas + Device Details Side Panel -->
+        <main class="main-workspace">
+            <!-- Canvas Container -->
+            <div class="canvas-container">
+                <div class="canvas-overlay-grid"></div>
+
+                <!-- Toast / Status Notification Banner -->
+                <div id="canvasStatusBanner" class="canvas-status-banner success"></div>
+
+                <!-- Cytoscape Mount Element -->
+                <div id="cy"></div>
+
+                <!-- Floating Canvas Zoom Controls -->
+                <div class="canvas-floating-controls">
+                    <button type="button" id="btnZoomIn" class="floating-btn" title="Zoom In">+</button>
+                    <button type="button" id="btnZoomOut" class="floating-btn" title="Zoom Out">&minus;</button>
+                </div>
+            </div>
+
+            <!-- Right-Side Device Details Panel -->
+            <aside class="details-panel">
+                <div class="details-header">
+                    <h5>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                        Device Information
+                    </h5>
+                </div>
+
+                <div class="details-content">
+                    <!-- Placeholder when nothing is selected -->
+                    <div id="noSelectionPlaceholder" class="no-selection-placeholder">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#1e2c4f" stroke-width="1.5" style="margin: 0 auto 12px auto; display: block;"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                        Click on any device in the topology canvas to inspect its network configuration and AI role mapping.
+                    </div>
+
+                    <!-- Populated Details Card -->
+                    <div id="deviceDetailsContent" style="display: none;">
+                        <div class="detail-row">
+                            <span class="detail-label">Device Name</span>
+                            <span class="detail-value" id="detailDeviceName">-</span>
+                        </div>
+
+                        <div class="detail-row">
+                            <span class="detail-label">Device Type</span>
+                            <span class="detail-value text-info" id="detailDeviceType">-</span>
+                        </div>
+
+                        <div class="detail-row">
+                            <span class="detail-label">IP Address</span>
+                            <span class="detail-value" id="detailIpAddress">-</span>
+                        </div>
+
+                        <div class="detail-row">
+                            <span class="detail-label">MAC Address</span>
+                            <span class="detail-value" style="font-family: monospace; font-size: 12px;" id="detailMacAddress">-</span>
+                        </div>
+
+                        <div class="detail-row">
+                            <span class="detail-label">Status</span>
+                            <span class="detail-value">
+                                <span id="detailStatus" class="badge badge-status-active">Active</span>
+                            </span>
+                        </div>
+
+                        <div class="detail-row">
+                            <span class="detail-label">Direct Connections</span>
+                            <span class="detail-value" id="detailConnCount">0</span>
+                        </div>
+
+                        <div class="detail-row" style="background: rgba(0, 245, 212, 0.05); margin: 6px -8px; padding: 8px 8px; border-radius: 6px; border-bottom: none;">
+                            <span class="detail-label" style="color: var(--accent-cyan);">AI Predicted Role</span>
+                            <span class="detail-value">
+                                <span id="detailAiRole" class="badge-role">Router</span>
+                            </span>
+                        </div>
+
+                        <div class="detail-row" style="background: rgba(56, 189, 248, 0.05); margin: 2px -8px; padding: 8px 8px; border-radius: 6px; border-bottom: none;">
+                            <span class="detail-label" style="color: var(--accent-electric);">AI Confidence</span>
+                            <span class="detail-value">
+                                <span id="detailAiConfidence" class="badge-confidence">96%</span>
+                            </span>
+                        </div>
+
+                        <!-- Connected Devices Tag List -->
+                        <div class="connected-devices-list">
+                            <div class="connected-devices-title">Connected Devices</div>
+                            <div id="detailConnectedTags" class="connected-tags"></div>
+                        </div>
+
+                        <!-- Details Actions -->
+                        <div class="details-actions">
+                            <button type="button" id="btnHighlightConnections" class="btn-outline-nms" style="justify-content: center;">
+                                Highlight Connections
+                            </button>
+                            <button type="button" id="btnClearHighlight" class="btn-outline-nms" style="justify-content: center;">
+                                Clear Highlight
+                            </button>
+                            <div style="display: flex; gap: 6px; margin-top: 4px;">
+                                <button type="button" id="btnToggleStatus" class="btn-outline-nms" style="flex: 1; justify-content: center; font-size: 11px;">
+                                    Toggle Active/Inactive
+                                </button>
+                                <button type="button" id="btnRenameDevice" class="btn-outline-nms" style="flex: 1; justify-content: center; font-size: 11px;">
+                                    Rename
+                                </button>
+                            </div>
+                            <button type="button" id="btnDeleteDeviceDetail" class="btn-outline-nms" style="justify-content: center; color: #f87171; border-color: rgba(239,68,68,0.4); font-size: 11px; margin-top: 2px;">
+                                Delete Device
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </main>
+
+        <!-- Bottom AI Role Analysis Panel -->
+        <section class="ai-analysis-section">
+            <div class="ai-analysis-card">
+                <div class="ai-card-header">
+                    <h5>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                        AI Device Role Analysis (Weka Machine Learning Engine)
+                    </h5>
+
+                    <div class="ai-badges-summary">
+                        <span class="ai-summary-badge">Routers: <b id="aiCountRouters">0</b></span>
+                        <span class="ai-summary-badge">Switches: <b id="aiCountSwitches">0</b></span>
+                        <span class="ai-summary-badge">Servers: <b id="aiCountServers">0</b></span>
+                        <span class="ai-summary-badge">Clients: <b id="aiCountClients">0</b></span>
+                        <span class="ai-summary-badge">Access Points: <b id="aiCountAPs">0</b></span>
+                    </div>
+                </div>
+
+                <div class="ai-table-wrap">
+                    <table class="table-nms">
+                        <thead>
+                            <tr>
+                                <th>Device</th>
+                                <th>Configured Type</th>
+                                <th>AI Predicted Role</th>
+                                <th>AI Confidence</th>
+                                <th>Status</th>
+                                <th>Feature Metrics Evaluated by Weka Model</th>
+                            </tr>
+                        </thead>
+                        <tbody id="aiAnalysisTableBody">
+                            <!-- Dynamically populated -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Scripts (100% Local & Offline) -->
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/cytoscape.min.js"></script>
+    <script src="js/icons.js"></script>
+    <script src="js/topology.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
